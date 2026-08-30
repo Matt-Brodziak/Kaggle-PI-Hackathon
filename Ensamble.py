@@ -37,3 +37,12 @@ merged["employed_prob"] = (
 submission = merged[[ID_COL, "employed_prob"]]
 submission.to_csv("Submissions/Segment_blend.csv", index=False)
 print(f"Saved Segment_blend.csv  (w_returning={W_RETURNING}, w_new={W_NEW})")
+
+print(merged["employed_prob"].describe())
+print((weight_lr + (1 - weight_lr)).describe() if hasattr(weight_lr, 'describe') else np.unique(weight_lr))
+
+# sanity check: employed_prob should never exceed max(rank_lr, rank_rf) or go below min(rank_lr, rank_rf) for any row
+check = merged[(merged["employed_prob"] > merged[["rank_lr","rank_rf"]].max(axis=1)) |
+               (merged["employed_prob"] < merged[["rank_lr","rank_rf"]].min(axis=1))]
+print(f"Rows where blend falls OUTSIDE the range of its two inputs: {len(check)}")
+print(check.head())
